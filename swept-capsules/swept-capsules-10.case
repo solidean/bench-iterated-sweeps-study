@@ -1,0 +1,20 @@
++++
+name: Iterated Swept Difference (10 Steps)
+date: 2026-03-16
+schema: 1
+format: simple
+comment: Iteratively subtract 10 sweep steps from a workpiece. Each boolean-difference feeds into the next, simulating a swept machining operation.
+requires:
+  - booleans
++++
+w = load-mesh "workpiece.obj"
+w = boolean-difference w "sweeps/sweep_000.obj":flip
+w = boolean-difference w "sweeps/sweep_001.obj":flip
+w = boolean-difference w "sweeps/sweep_002.obj":flip
+w = boolean-difference w "sweeps/sweep_003.obj":flip
+w = boolean-difference w "sweeps/sweep_004.obj":flip
+w = boolean-difference w "sweeps/sweep_005.obj":flip
+w = boolean-difference w "sweeps/sweep_006.obj":flip
+w = boolean-difference w "sweeps/sweep_007.obj":flip
+w = boolean-difference w "sweeps/sweep_008.obj":flip
+w = boolean-difference w "sweeps/sweep_009.obj":flip
