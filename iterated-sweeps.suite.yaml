@@ -3,3 +3,4 @@ name: Iterated Test Suite
 cases:
   - swept-capsules/swept-capsules-10.case
   - swept-capsules/swept-capsules-100.case
+  - swept-cylinders/swept-cylinders-267.case
