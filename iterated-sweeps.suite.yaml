@@ -4,3 +4,4 @@ cases:
   - swept-capsules/swept-capsules-10.case
   - swept-capsules/swept-capsules-100.case
   - swept-cylinders/swept-cylinders-267.case
+  - swept-capsules-complex/swept-capsules-1000.case
