@@ -1,7 +1,56 @@
 kind: suite
-name: Iterated Test Suite
-cases:
-  - swept-capsules/swept-capsules-10.case
-  - swept-capsules/swept-capsules-100.case
-  - swept-cylinders/swept-cylinders-267.case
-  - swept-capsules-complex/swept-capsules-1000.case
+name: Iterated Sweep Study
+
+experiments:
+  - name: swept-capsules-10
+    description: 10-step capsule sweep — all runners, no truncation
+    cases:
+      - swept-capsules/swept-capsules-10.case
+    runners: all
+    analyzer:
+      script: analyze-10.py
+
+  - name: swept-capsules-100
+    description: 100-step capsule sweep — all runners, truncate on incorrectness
+    cases:
+      - swept-capsules/swept-capsules-100.case
+    runners: all
+    analyzer:
+      script: analyze-truncated.py
+
+  - name: swept-cylinders-267
+    description: 267-step cylinder sweep — selected runners only
+    cases:
+      - swept-cylinders/swept-cylinders-267.case
+    runners:
+      - cgal
+      - solidean
+      - manifold
+      - trueform
+    analyzer:
+      script: analyze-truncated.py
+
+  - name: swept-capsules-1000
+    description: 1000-step capsule sweep — selected runners only
+    cases:
+      - swept-capsules-complex/swept-capsules-1000.case
+    runners:
+      - cgal
+      - solidean
+      - manifold
+      - trueform
+    analyzer:
+      script: analyze-truncated.py
+
+  - name: summary
+    description: Aggregate report referencing all experiment charts
+    analyze_only: true
+    runners: all
+    analyzer:
+      script: analyze-summary.py
+      config:
+        sibling_experiments:
+          - swept-capsules-10
+          - swept-capsules-100
+          - swept-cylinders-267
+          - swept-capsules-1000
