@@ -18,12 +18,12 @@ experiments:
     analyzer:
       script: analyze-truncated.py
 
-  - name: swept-cylinders-267
-    description: 267-step cylinder sweep — selected runners only
+  - name: swept-cylinders-227
+    description: 227-step cylinder sweep — selected runners only
     cases:
-      - swept-cylinders/swept-cylinders-267.case
+      - swept-cylinders/swept-cylinders-227.case
     runners:
-      - cgal
+      - cgal-6.1.1-corefine-epec
       - solidean
       - manifold
       - trueform
@@ -35,7 +35,7 @@ experiments:
     cases:
       - swept-capsules-complex/swept-capsules-1000.case
     runners:
-      - cgal
+      - cgal-6.1.1-corefine-epec
       - solidean
       - manifold
       - trueform
@@ -52,5 +52,5 @@ experiments:
         sibling_experiments:
           - swept-capsules-10
           - swept-capsules-100
-          - swept-cylinders-267
+          - swept-cylinders-227
           - swept-capsules-1000
