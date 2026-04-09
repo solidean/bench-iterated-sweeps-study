@@ -1,3 +1,10 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "matplotlib>=3.8",
+#   "pyyaml>=6.0",
+# ]
+# ///
 """Analyzer for the 10-step capsule sweep experiment.
 
 All runners, no truncation. Incorrect steps shown as dotted lines.

@@ -9,6 +9,32 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import yaml
 
+# ---------------------------------------------------------------------------
+# Dark-mode style
+# ---------------------------------------------------------------------------
+
+BG = "#121622"
+FG = "#e0e0e0"
+SPINE = "#444444"
+LEGEND_BG = "#1e2436"
+GRID_COLOR = "#30333e"
+
+plt.rcParams.update({
+    "figure.facecolor":   BG,
+    "axes.facecolor":     BG,
+    "text.color":         FG,
+    "axes.labelcolor":    FG,
+    "xtick.color":        FG,
+    "ytick.color":        FG,
+    "axes.edgecolor":     SPINE,
+    "legend.facecolor":   LEGEND_BG,
+    "legend.edgecolor":   SPINE,
+    "legend.labelcolor":  FG,
+})
+
+FIGSIZE = (1018 / 96, 1018 / 96 * 5 / 8)
+DPI = 96
+
 
 # ---------------------------------------------------------------------------
 # I/O helpers
@@ -39,15 +65,12 @@ def write_output_json(path, artifacts):
 
 def _load_runner_color(runner_yaml_path):
     """Extract the first variant color from a runner.yaml file."""
-    try:
-        with open(runner_yaml_path, encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-        for v in (data.get("variants") or {}).values():
-            color = v.get("color")
-            if color:
-                return color
-    except Exception:
-        pass
+    with open(runner_yaml_path, encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    for v in (data.get("variants") or []):
+        color = v.get("color")
+        if color:
+            return color
     return None
 
 
@@ -224,39 +247,27 @@ def plot_metric(ax, runners_data, metric_fn, ground_truth,
             kwargs["color"] = color
 
         if dash_incorrect:
-            # split into correct/incorrect segments
-            correct_s, correct_v = [], []
-            incorrect_s, incorrect_v = [], []
-            for s, v, op in zip(steps, values, ops):
-                if is_step_correct(op, s - 1, ground_truth):
-                    # bridge from last incorrect point if needed
-                    if incorrect_s:
-                        correct_s.append(s)
-                        correct_v.append(v)
-                    correct_s.append(s)
-                    correct_v.append(v)
-                    if incorrect_s:
-                        # flush incorrect segment
-                        ax.plot(incorrect_s, incorrect_v, linestyle=":",
-                                alpha=0.5, linewidth=1.2,
-                                color=color if color else None)
-                        incorrect_s, incorrect_v = [], []
-                else:
-                    if correct_s:
-                        # bridge from last correct point
-                        incorrect_s.append(correct_s[-1])
-                        incorrect_v.append(correct_v[-1])
-                    incorrect_s.append(s)
-                    incorrect_v.append(v)
+            # Split at the first incorrect step
+            trunc_pt = find_truncation_point(ops, ground_truth)
+            valid_s = [s for s in steps if s - 1 < trunc_pt]
+            valid_v = values[:len(valid_s)]
+            invalid_s = [s for s in steps if s - 1 >= trunc_pt]
+            invalid_v = values[len(valid_s):]
 
-            if correct_s:
-                ax.plot(correct_s, correct_v, **kwargs)
-                kwargs.pop("label", None)  # only label once
-            if incorrect_s:
+            # Bridge: start invalid segment from last valid point
+            if valid_s and invalid_s:
+                invalid_s = [valid_s[-1]] + invalid_s
+                invalid_v = [valid_v[-1]] + invalid_v
+
+            if valid_s:
+                line, = ax.plot(valid_s, valid_v, **kwargs)
                 kwargs.pop("label", None)
-                ax.plot(incorrect_s, incorrect_v, linestyle=":",
-                        alpha=0.5, linewidth=1.2,
-                        color=color if color else None)
+                if not color:
+                    color = line.get_color()
+            if invalid_s:
+                kwargs.pop("label", None)
+                ax.plot(invalid_s, invalid_v, linestyle=":",
+                        alpha=0.5, linewidth=1.2, color=color)
         else:
             ax.plot(steps, values, **kwargs)
 
@@ -268,8 +279,9 @@ def plot_metric(ax, runners_data, metric_fn, ground_truth,
     if log_scale:
         ax.set_yscale("log")
     ax.set_xlabel("Step")
-    ax.legend(fontsize="small", loc="best")
-    ax.grid(True, alpha=0.3)
+    ax.legend(fontsize=8, loc="best")
+    ax.grid(True, which="both", color=GRID_COLOR, linewidth=0.6)
+    ax.set_axisbelow(True)
 
 
 def make_4_charts(runners_data, ground_truth, title_prefix, artifacts_dir,
@@ -283,7 +295,7 @@ def make_4_charts(runners_data, ground_truth, title_prefix, artifacts_dir,
     results = []
 
     for metric_id, ylabel, fn, log_scale in METRICS:
-        fig, ax = plt.subplots(figsize=(12, 6))
+        fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI)
         title = f"{title_prefix} \u2014 {ylabel}"
         ax.set_title(title)
         ax.set_ylabel(ylabel)
@@ -294,7 +306,8 @@ def make_4_charts(runners_data, ground_truth, title_prefix, artifacts_dir,
 
         filename = f"{metric_id}.svg"
         path = artifacts_dir / filename
-        fig.savefig(str(path), format="svg", bbox_inches="tight")
+        fig.savefig(str(path), format="svg", bbox_inches="tight",
+                    facecolor=fig.get_facecolor())
         plt.close(fig)
         print(f"  wrote {path}")
         results.append((str(path), f"{title_prefix} {ylabel}"))

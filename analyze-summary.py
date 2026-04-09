@@ -1,3 +1,10 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "matplotlib>=3.8",
+#   "pyyaml>=6.0",
+# ]
+# ///
 """Summary analyzer — generates a markdown report referencing all experiment charts."""
 
 import os

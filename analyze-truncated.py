@@ -1,3 +1,10 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "matplotlib>=3.8",
+#   "pyyaml>=6.0",
+# ]
+# ///
 """Analyzer for iterated sweep experiments with truncation.
 
 Shared by swept-capsules-100, swept-cylinders-267, and swept-capsules-1000.
